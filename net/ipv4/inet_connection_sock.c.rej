@@ -1,0 +1,12 @@
+diff a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c	(rejected hunks)
+@@ -860,6 +873,10 @@ void inet_csk_listen_stop(struct sock *sk)
+ 		inet_child_forget(sk, req, child);
+ 		bh_unlock_sock(child);
+ 		local_bh_enable();
++		if (mutex_taken) {
++			mutex_unlock(&mpcb->mpcb_mutex);
++			mptcp_mpcb_put(mpcb);
++		}
+ 		sock_put(child);
+ 
+ 		cond_resched();

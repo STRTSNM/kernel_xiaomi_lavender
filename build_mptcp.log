@@ -1,0 +1,49 @@
+  CHK     include/config/kernel.release
+  GEN     ./Makefile
+  CHK     include/generated/uapi/linux/version.h
+  CHK     scripts/mod/devicetable-offsets.h
+  Using .. as source for kernel
+  CHK     include/generated/utsrelease.h
+  CHK     include/generated/timeconst.h
+  CHK     include/generated/bounds.h
+  CHK     include/generated/asm-offsets.h
+  CALL    ../scripts/checksyscalls.sh
+make[2]: 'include/generated/vdso-offsets.h' is up to date.
+  CHK     include/generated/compile.h
+  DTC     arch/arm64/boot/dts/qcom/sdm660-mtp-lavender.dtb
+  CC      net/mptcp/mptcp_input.o
+  CC      net/mptcp/mptcp_ipv6.o
+  DTC     arch/arm64/boot/dts/qcom/sdm660-mtp-lavender-overlay.dtbo
+  CHK     kernel/config_data.h
+../net/mptcp/mptcp_ipv6.c:278:22: warning: default initialization of an object of type 'struct socket_alloc' with const member leaves the object uninitialized [-Wdefault-const-init-field-unsafe]
+  278 |         struct socket_alloc sock_full;
+      |                             ^
+../include/linux/fs.h:650:22: note: member 'i_nlink' declared 'const' here
+  650 |                 const unsigned int i_nlink;
+      |                                    ^
+1 warning generated.
+  LD      net/mptcp/mptcp.o
+  LD      net/mptcp/built-in.o
+  LD      net/built-in.o
+  LINK    vmlinux
+  LD      vmlinux.o
+  MODPOST vmlinux.o
+  GEN     .version
+  CHK     include/generated/compile.h
+  UPD     include/generated/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+/usr/bin/aarch64-linux-gnu-ld: warning: .tmp_vmlinux1 has a LOAD segment with RWX permissions
+  KSYM    .tmp_kallsyms1.o
+/usr/bin/aarch64-linux-gnu-ld: warning: .tmp_vmlinux2 has a LOAD segment with RWX permissions
+  KSYM    .tmp_kallsyms2.o
+  LD      vmlinux
+/usr/bin/aarch64-linux-gnu-ld: warning: vmlinux has a LOAD segment with RWX permissions
+  SORTEX  vmlinux
+  SYSMAP  System.map
+  OBJCOPY arch/arm64/boot/Image
+  DTC     arch/arm64/boot/dts/qcom/sdm660-mtp-lavender.dtb
+  Building modules, stage 2.
+  MODPOST 0 modules
+  GZIP    arch/arm64/boot/Image.gz
+  CAT     arch/arm64/boot/Image.gz-dtb

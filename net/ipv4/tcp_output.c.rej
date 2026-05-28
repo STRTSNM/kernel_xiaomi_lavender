@@ -1,0 +1,42 @@
+diff a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c	(rejected hunks)
+@@ -697,16 +704,22 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
+ 		opts->tsecr = tp->rx_opt.ts_recent;
+ 		size += TCPOLEN_TSTAMP_ALIGNED;
+ 	}
++	if (mptcp(tp))
++		mptcp_established_options(sk, skb, opts, &size);
+ 
+ 	eff_sacks = tp->rx_opt.num_sacks + tp->rx_opt.dsack;
+ 	if (unlikely(eff_sacks)) {
+-		const unsigned int remaining = MAX_TCP_OPTION_SPACE - size;
+-		opts->num_sack_blocks =
+-			min_t(unsigned int, eff_sacks,
+-			      (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
+-			      TCPOLEN_SACK_PERBLOCK);
+-		size += TCPOLEN_SACK_BASE_ALIGNED +
+-			opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
++		const unsigned remaining = MAX_TCP_OPTION_SPACE - size;
++		if (remaining < TCPOLEN_SACK_BASE_ALIGNED)
++			opts->num_sack_blocks = 0;
++		else
++			opts->num_sack_blocks =
++			    min_t(unsigned int, eff_sacks,
++				  (remaining - TCPOLEN_SACK_BASE_ALIGNED) /
++				  TCPOLEN_SACK_PERBLOCK);
++		if (opts->num_sack_blocks)
++			size += TCPOLEN_SACK_BASE_ALIGNED +
++			    opts->num_sack_blocks * TCPOLEN_SACK_PERBLOCK;
+ 	}
+ 
+ 	return size;
+@@ -901,8 +934,8 @@ void tcp_wfree(struct sk_buff *skb)
+  * We are working here with either a clone of the original
+  * SKB, or a fresh unique copy made by the retransmit engine.
+  */
+-static int tcp_transmit_skb(struct sock *sk, struct sk_buff *skb, int clone_it,
+-			    gfp_t gfp_mask)
++int tcp_transmit_skb(struct sock *sk, struct sk_buff *skb, int clone_it,
++		        gfp_t gfp_mask)
+ {
+ 	const struct inet_connection_sock *icsk = inet_csk(sk);
+ 	struct inet_sock *inet;

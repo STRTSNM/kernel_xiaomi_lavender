@@ -751,6 +751,7 @@ enum sock_flags {
 	SOCK_FILTER_LOCKED, /* Filter cannot be changed anymore */
 	SOCK_SELECT_ERR_QUEUE, /* Wake select on error queue */
 	SOCK_RCU_FREE, /* wait rcu grace period in sk_destruct() */
+	SOCK_MPTCP, /* MPTCP set on this socket */
 };
 
 #define SK_FLAGS_TIMESTAMP ((1UL << SOCK_TIMESTAMP) | (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE))
@@ -949,6 +950,16 @@ void sk_clear_memalloc(struct sock *sk);
 
 int sk_wait_data(struct sock *sk, long *timeo, const struct sk_buff *skb);
 
+/* START - needed for MPTCP */
+struct sock *sk_prot_alloc(struct proto *prot, gfp_t priority, int family);
+void sock_lock_init(struct sock *sk);
+
+extern struct lock_class_key af_callback_keys[AF_MAX];
+extern char *const af_family_clock_key_strings[AF_MAX+1];
+
+#define SK_FLAGS_TIMESTAMP ((1UL << SOCK_TIMESTAMP) | (1UL << SOCK_TIMESTAMPING_RX_SOFTWARE))
+/* END - needed for MPTCP */
+
 struct request_sock_ops;
 struct timewait_sock_ops;
 struct inet_hashinfo;
@@ -1024,6 +1035,7 @@ struct proto {
 	void			(*rehash)(struct sock *sk);
 	int			(*get_port)(struct sock *sk, unsigned short snum);
 	void			(*clear_sk)(struct sock *sk, int size);
+	void			(*copy_sk)(struct sock *nsk, const struct sock *osk);
 
 	/* Keeping track of sockets in use */
 #ifdef CONFIG_PROC_FS
@@ -1522,12 +1534,26 @@ static inline void lock_sock(struct sock *sk)
 
 void release_sock(struct sock *sk);
 
+#ifdef CONFIG_MPTCP_DEBUG_LOCK
+extern void mptcp_check_lock(struct sock* sk);
+#endif
+static inline void lock_sock_check_mptcp(struct sock* sk)
+{
+#ifdef CONFIG_MPTCP_DEBUG_LOCK
+	if (sk && sk->sk_type == SOCK_STREAM && sk->sk_protocol == IPPROTO_TCP)
+		mptcp_check_lock(sk);
+#endif
+}
+
 /* BH context may only use the following locking interface. */
-#define bh_lock_sock(__sk)	spin_lock(&((__sk)->sk_lock.slock))
-#define bh_lock_sock_nested(__sk) \
+#define bh_lock_sock(__sk)	do { lock_sock_check_mptcp(__sk); \
+				spin_lock(&((__sk)->sk_lock.slock)); } while (0)
+#define bh_lock_sock_nested(__sk) do { \
+				lock_sock_check_mptcp(__sk); \
 				spin_lock_nested(&((__sk)->sk_lock.slock), \
-				SINGLE_DEPTH_NESTING)
-#define bh_unlock_sock(__sk)	spin_unlock(&((__sk)->sk_lock.slock))
+				SINGLE_DEPTH_NESTING); } while (0)
+#define bh_unlock_sock(__sk)	do { lock_sock_check_mptcp(__sk); \
+				spin_unlock(&((__sk)->sk_lock.slock)); } while (0)
 
 bool lock_sock_fast(struct sock *sk);
 /**
