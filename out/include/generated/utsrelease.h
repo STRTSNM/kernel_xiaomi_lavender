@@ -1,1 +1,1 @@
-#define UTS_RELEASE "4.4.302-lineageos-gf9fe259ac488-dirty"
+#define UTS_RELEASE "4.4.302-lineageos-g64207299185a-dirty"

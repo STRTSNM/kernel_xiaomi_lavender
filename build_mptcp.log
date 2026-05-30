@@ -1,30 +1,64 @@
+  GEN     ./Makefile
+scripts/kconfig/conf  --silentoldconfig Kconfig
   CHK     include/config/kernel.release
   GEN     ./Makefile
+  UPD     include/config/kernel.release
   CHK     include/generated/uapi/linux/version.h
-  CHK     scripts/mod/devicetable-offsets.h
   Using .. as source for kernel
   CHK     include/generated/utsrelease.h
+  UPD     include/generated/utsrelease.h
+  CHK     scripts/mod/devicetable-offsets.h
   CHK     include/generated/timeconst.h
   CHK     include/generated/bounds.h
   CHK     include/generated/asm-offsets.h
   CALL    ../scripts/checksyscalls.sh
 make[2]: 'include/generated/vdso-offsets.h' is up to date.
   CHK     include/generated/compile.h
+  CC      init/version.o
   DTC     arch/arm64/boot/dts/qcom/sdm660-mtp-lavender.dtb
-  CC      net/mptcp/mptcp_input.o
-  CC      net/mptcp/mptcp_ipv6.o
+  CC      kernel/sys.o
+  LD      init/built-in.o
+  CC      net/mptcp/mptcp_pm.o
+  CC      drivers/clocksource/arm_arch_timer.o
+  CC      drivers/base/firmware_class.o
   DTC     arch/arm64/boot/dts/qcom/sdm660-mtp-lavender-overlay.dtbo
-  CHK     kernel/config_data.h
-../net/mptcp/mptcp_ipv6.c:278:22: warning: default initialization of an object of type 'struct socket_alloc' with const member leaves the object uninitialized [-Wdefault-const-init-field-unsafe]
-  278 |         struct socket_alloc sock_full;
-      |                             ^
-../include/linux/fs.h:650:22: note: member 'i_nlink' declared 'const' here
-  650 |                 const unsigned int i_nlink;
-      |                                    ^
-1 warning generated.
+  LD      drivers/clocksource/built-in.o
+  CC      net/mptcp/mptcp_fullmesh.o
+  LD      drivers/base/built-in.o
+  CC      net/mptcp/mptcp_ndiffports.o
+  CC      net/mptcp/mptcp_rr.o
+  CC      net/mptcp/mptcp_redundant.o
   LD      net/mptcp/mptcp.o
+  CC      kernel/trace/trace.o
+  CC      drivers/net/wireguard/main.o
+  CC      drivers/net/wireguard/noise.o
+  CC      drivers/net/wireguard/device.o
+  CC      drivers/net/wireguard/peer.o
+  CC      drivers/net/wireguard/timers.o
+  CC      drivers/net/wireguard/queueing.o
   LD      net/mptcp/built-in.o
   LD      net/built-in.o
+  CC      drivers/net/wireguard/send.o
+  CC      drivers/net/wireguard/receive.o
+  CC      drivers/net/wireguard/socket.o
+  CC      drivers/net/wireguard/peerlookup.o
+  CC      drivers/net/wireguard/allowedips.o
+  CC      drivers/net/wireguard/ratelimiter.o
+  CC      drivers/net/wireguard/cookie.o
+  CC      drivers/net/wireguard/netlink.o
+  CC      drivers/net/wireguard/crypto/zinc/chacha20/chacha20.o
+  CC      kernel/module.o
+  CC      drivers/net/wireguard/crypto/zinc/poly1305/poly1305.o
+  CC      drivers/net/wireguard/crypto/zinc/chacha20poly1305.o
+  CC      drivers/net/wireguard/crypto/zinc/blake2s/blake2s.o
+  CC      drivers/net/wireguard/crypto/zinc/curve25519/curve25519.o
+  LD      kernel/trace/built-in.o
+  CHK     kernel/config_data.h
+  LD      drivers/net/wireguard/wireguard.o
+  LD      drivers/net/wireguard/built-in.o
+  LD      drivers/net/built-in.o
+  LD      kernel/built-in.o
+  LD      drivers/built-in.o
   LINK    vmlinux
   LD      vmlinux.o
   MODPOST vmlinux.o
